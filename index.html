@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro Vision Calculator</title>
+    <title>Vision Pro</title>
+    <meta property="og:title" content="Vision Pro Calculator">
+    <meta property="og:description" content="The Future of Math.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
+    
     <style>
-        /* THE LOOK */
+        :root {
+            --glass: rgba(255, 255, 255, 0.1);
+            --accent: #00d4ff;
+        }
+
         body { 
-            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+            background: radial-gradient(circle at center, #1a1a2e, #0f0c29);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -17,157 +25,144 @@
             overflow: hidden;
         }
 
-        .calculator {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(15px);
-            padding: 20px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            width: 90%;
-            max-width: 340px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-
-        /* THE SCREEN & HISTORY */
-        #display-container {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-        }
-
-        #history-box {
-            height: 30px;
-            color: rgba(0, 212, 255, 0.5);
-            font-size: 14px;
-            text-align: right;
-            overflow: hidden;
-            font-family: monospace;
-            margin-bottom: 5px;
-        }
-
-        #screen {
-            color: #00d4ff;
-            font-size: 42px;
-            text-align: right;
-            min-height: 50px;
-            font-weight: 300;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        /* THE BUTTONS */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        button {
-            height: 65px;
-            border: none;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            font-size: 22px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* SPLASH SCREEN STYLES */
+        #splash {
+            position: fixed;
+            inset: 0;
+            background: #0f0c29;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease-out;
         }
 
-        button:active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(0.95);
+        .logo-text {
+            color: white;
+            font-size: 40px;
+            font-weight: 200;
+            letter-spacing: 12px;
+            text-shadow: 0 0 20px var(--accent);
+            animation: pulse 2s infinite;
         }
 
-        .op { background: rgba(255, 159, 10, 0.8); }
-        .op:active { background: #ffb340; }
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(0.95); }
+        }
+
+        /* CALCULATOR MAIN STYLES */
+        .calculator {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 320px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease-out;
+        }
+
+        .show-calc {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #display-container {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        #history { color: var(--accent); font-size: 14px; height: 20px; opacity: 0.6; }
+        #screen { color: white; font-size: 48px; font-weight: 200; overflow: hidden; }
+
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
         
-        .clear { 
-            background: rgba(235, 77, 75, 0.8); 
-            grid-column: span 2; 
+        button {
+            height: 65px;
+            border-radius: 20px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        /* MOBILE OPTIMIZATION */
-        @media (max-width: 400px) {
-            button { height: 55px; font-size: 20px; }
-            #screen { font-size: 34px; }
-        }
+        button:active { background: var(--accent); transform: scale(0.9); }
+        .op { color: var(--accent); font-weight: bold; }
+        .clear { grid-column: span 2; color: #ff4d4d; }
     </style>
 </head>
 <body>
 
-    <div class="calculator">
+    <div id="splash">
+        <div class="logo-text">VISION</div>
+        <div style="color: var(--accent); margin-top: 20px; font-size: 10px; letter-spacing: 2px;">POWERED BY AI</div>
+    </div>
+
+    <div class="calculator" id="main-app">
         <div id="display-container">
-            <div id="history-box">Welcome</div>
+            <div id="history"></div>
             <div id="screen">0</div>
         </div>
-
         <div class="grid">
             <button class="clear" onclick="clr()">AC</button>
             <button class="op" onclick="press('/')">÷</button>
             <button class="op" onclick="press('*')">×</button>
-
             <button onclick="press('7')">7</button>
             <button onclick="press('8')">8</button>
             <button onclick="press('9')">9</button>
             <button class="op" onclick="press('-')">−</button>
-
             <button onclick="press('4')">4</button>
             <button onclick="press('5')">5</button>
             <button onclick="press('6')">6</button>
             <button class="op" onclick="press('+')">+</button>
-
             <button onclick="press('1')">1</button>
             <button onclick="press('2')">2</button>
             <button onclick="press('3')">3</button>
-            <button class="op" onclick="solve()">=</button>
-
+            <button class="op" style="background: var(--accent); color: black;" onclick="solve()">=</button>
             <button style="grid-column: span 2;" onclick="press('0')">0</button>
             <button onclick="press('.')">.</button>
         </div>
     </div>
 
     <script>
+        // Splash Screen Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash').style.display = 'none';
+                    document.getElementById('main-app').classList.add('show-calc');
+                }, 800);
+            }, 1500);
+        });
+
         let txt = "";
-        const screen = document.getElementById('screen');
-        const historyBox = document.getElementById('history-box');
-
-        function press(val) {
-            // Haptic Feedback (Phone Buzz)
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(15);
-            }
-            
-            if (txt === "0") txt = "";
-            txt += val;
-            screen.innerText = txt;
+        function press(v) {
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
+            txt += v;
+            document.getElementById('screen').innerText = txt;
         }
-
         function clr() {
-            if (window.navigator.vibrate) window.navigator.vibrate(20);
             txt = "";
-            screen.innerText = "0";
-            historyBox.innerText = "";
+            document.getElementById('screen').innerText = "0";
+            document.getElementById('history').innerText = "";
         }
-
         function solve() {
-            if (window.navigator.vibrate) window.navigator.vibrate(30);
             try {
-                let equation = txt;
-                let result = eval(txt);
-                
-                // Update history before showing result
-                historyBox.innerText = equation + " =";
-                
-                // Show result
-                screen.innerText = result;
-                txt = result.toString();
-            } catch (e) {
-                screen.innerText = "Error";
+                document.getElementById('history').innerText = txt + " =";
+                txt = eval(txt).toString();
+                document.getElementById('screen').innerText = txt;
+            } catch {
+                document.getElementById('screen').innerText = "Error";
                 txt = "";
             }
         }
