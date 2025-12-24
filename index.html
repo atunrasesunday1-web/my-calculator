@@ -32,46 +32,62 @@
         }
         .nav-btn {
             flex: 1; padding: 12px; border: none; background: none; color: #555;
-            font-size: 10px; font-weight: 800; letter-spacing: 1.5px; z-index: 2;
+            font-size: 10px; font-weight: 800; letter-spacing: 1.5px; z-index: 2; transition: color 0.3s;
         }
         .nav-btn.active { color: #fff; }
         
         .nav-pill {
             position: absolute; width: calc(50% - 4px); height: calc(100% - 8px);
-            background: #252525; border-radius: 14px; top: 4px; left: 4px;
+            background: #282828; border-radius: 14px; top: 4px; left: 4px;
             transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1); z-index: 1;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
         }
 
         /* ROOMS ENGINE */
         .main-stage { display: flex; width: 200%; flex: 1; transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1); }
-        .room { width: 50%; height: 100%; display: flex; flex-direction: column; padding: 10px 20px 20px 20px; }
+        .room { width: 50%; height: 100%; display: flex; flex-direction: column; padding: 10px 20px 10px 20px; }
 
         /* DISPLAY SYSTEM */
-        .display { flex: 1.2; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; padding-bottom: 15px; }
-        .label { font-size: 11px; color: var(--accent); opacity: 0.5; margin-bottom: 5px; font-weight: 600; letter-spacing: 1px; }
-        .screen { font-size: 55px; font-weight: 300; letter-spacing: -2px; color: #fff; line-height: 1.1; }
-        .sub-screen { font-size: 22px; color: #444; font-weight: 400; margin-top: 5px; }
+        .display { flex: 1.2; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; padding-bottom: 10px; }
+        .label { font-size: 10px; color: var(--accent); opacity: 0.6; margin-bottom: 5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+        .screen { font-size: 64px; font-weight: 300; letter-spacing: -2px; color: #fff; line-height: 1.1; }
+        .sub-screen { font-size: 20px; color: #555; font-weight: 400; margin-top: 5px; }
 
-        /* CURRENCY SELECTOR (The New "Pro" Feature) */
-        .currency-bar {
-            display: flex; gap: 10px; overflow-x: auto; padding: 10px 0;
-            scrollbar-width: none; -ms-overflow-style: none;
-        }
+        /* CURRENCY SCROLLER */
+        .currency-bar { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
         .currency-bar::-webkit-scrollbar { display: none; }
-        
         .curr-chip {
-            padding: 8px 20px; background: var(--btn); border-radius: 12px;
-            font-size: 11px; font-weight: 700; color: #555; border: 1px solid transparent;
-            white-space: nowrap; transition: 0.3s;
+            padding: 8px 18px; background: var(--btn); border-radius: 12px;
+            font-size: 11px; font-weight: 700; color: #444; border: 1px solid transparent;
+            white-space: nowrap; transition: 0.3s; display: flex; align-items: center; gap: 5px;
         }
-        .curr-chip.active { color: var(--accent); border-color: var(--accent); background: rgba(0, 212, 255, 0.05); }
+        .curr-chip.active { color: #fff; border-color: rgba(0, 212, 255, 0.3); background: rgba(0, 212, 255, 0.1); }
+        .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; display: none; box-shadow: 0 0 5px var(--accent); }
+        .curr-chip.active .dot { display: block; }
 
-        /* BUTTON SYSTEM */
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; flex: 2.5; }
-        button { width: 100%; height: 100%; border-radius: 20px; border: none; background: var(--btn); color: #fff; font-size: 24px; font-weight: 500; }
-        button:active { transform: scale(0.92); background: #2a2a2a; }
-        .op { color: var(--accent); background: rgba(0, 212, 255, 0.03); }
-        .action { background: var(--accent); color: #000; font-weight: 700; }
+        /* BUTTONS */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; flex: 2.8; margin-bottom: 10px; }
+        button { 
+            width: 100%; height: 100%; border-radius: 22px; border: none; 
+            background: var(--btn); color: #fff; font-size: 24px; font-weight: 500;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+        }
+        button:active { 
+            transform: scale(0.94); 
+            background: #252525; 
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); 
+        }
+        .op { color: var(--accent); background: rgba(255,255,255,0.02); }
+        .action { background: var(--accent); color: #000; font-weight: 800; }
+
+        /* STATUS TICKER */
+        .ticker {
+            background: #000; padding: 12px 20px; font-size: 9px; 
+            color: #333; letter-spacing: 2px; font-weight: 800;
+            display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.02);
+        }
+        .pulse { color: var(--accent); animation: blink 2s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
 </head>
 <body>
@@ -79,7 +95,7 @@
     <div class="header-container">
         <div class="navigation">
             <div class="nav-pill" id="pill"></div>
-            <button class="nav-btn active" onclick="goto(0, this)">CALCULATOR</button>
+            <button class="nav-btn active" onclick="goto(0, this)">CORE CALC</button>
             <button class="nav-btn" onclick="goto(1, this)">EXCHANGE</button>
         </div>
     </div>
@@ -111,11 +127,11 @@
         <div class="room">
             <div class="display">
                 <div class="currency-bar">
-                    <div class="curr-chip active" onclick="setCurr('USD', 1680, this)">USD 🇺🇸</div>
-                    <div class="curr-chip" onclick="setCurr('GBP', 2150, this)">GBP 🇬🇧</div>
-                    <div class="curr-chip" onclick="setCurr('EUR', 1820, this)">EUR 🇪🇺</div>
-                    <div class="curr-chip" onclick="setCurr('CAD', 1230, this)">CAD 🇨🇦</div>
-                    <div class="curr-chip" onclick="setCurr('AED', 457, this)">AED 🇦🇪</div>
+                    <div class="curr-chip active" onclick="setCurr('USD', 1680, this)"><div class="dot"></div>USD</div>
+                    <div class="curr-chip" onclick="setCurr('GBP', 2150, this)"><div class="dot"></div>GBP</div>
+                    <div class="curr-chip" onclick="setCurr('EUR', 1820, this)"><div class="dot"></div>EUR</div>
+                    <div class="curr-chip" onclick="setCurr('CAD', 1230, this)"><div class="dot"></div>CAD</div>
+                    <div class="curr-chip" onclick="setCurr('AED', 457, this)"><div class="dot"></div>AED</div>
                 </div>
                 <div class="label" id="fx-label">NAIRA TOTAL (USD @ 1,680)</div>
                 <div class="screen" id="f-scr">₦0</div>
@@ -123,7 +139,7 @@
             </div>
             <div class="grid">
                 <button class="op" onclick="fClr()">AC</button>
-                <button style="grid-column: span 2" class="op" id="curr-display">US DOLLAR</button>
+                <button style="grid-column: span 2" class="op" id="curr-display" style="font-size:12px; letter-spacing:2px">US DOLLAR</button>
                 <button class="op" onclick="fBack()">⌫</button>
                 <button onclick="fIn('7')">7</button><button onclick="fIn('8')">8</button><button onclick="fIn('9')">9</button>
                 <button class="op" onclick="copyFX()">COPY</button>
@@ -133,35 +149,41 @@
                 <button class="action" onclick="goto(0, document.querySelectorAll('.nav-btn')[0])">DONE</button>
                 <button style="grid-column: span 2" onclick="fIn('0')">0</button>
                 <button onclick="fIn('.')">.</button>
-                <button class="op">⚙️</button>
+                <button class="op" onclick="shareFX()">🚀</button>
             </div>
         </div>
     </div>
 
+    <div class="ticker">
+        <div><span class="pulse">●</span> VISION PRO SECURE</div>
+        <div id="date-now">DEC 24, 2025</div>
+    </div>
+
     <script>
         let cData = ""; let fData = ""; 
-        let currentRate = 1680;
-        let currentSym = "USD";
+        let currentRate = 1680; let currentSym = "USD";
+
+        // Set the date
+        const d = new Date();
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        document.getElementById('date-now').innerText = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 
         function goto(idx, btn) {
             document.getElementById('stage').style.transform = `translateX(-${idx * 50}%)`;
             document.getElementById('pill').style.transform = `translateX(${idx * 100}%)`;
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            if (navigator.vibrate) navigator.vibrate(15);
+            if (navigator.vibrate) navigator.vibrate(10);
         }
 
-        // --- CALCULATOR ENGINE ---
-        function cIn(v) { cData += v; cUp(); }
-        function cClr() { cData = ""; cUp(); document.getElementById('c-hist').innerText = "SYSTEM READY"; }
+        function cIn(v) { cData += v; cUp(); if (navigator.vibrate) navigator.vibrate(5); }
+        function cClr() { cData = ""; cUp(); document.getElementById('c-hist').innerText = "CLEARED"; }
         function cBack() { cData = cData.slice(0,-1); cUp(); }
         function cUp() { document.getElementById('c-scr').innerText = cData || "0"; }
-        function cSolve() { try { cData = eval(cData).toString(); cUp(); if(navigator.vibrate) navigator.vibrate(30); } catch(e){} }
+        function cSolve() { try { cData = eval(cData).toString(); cUp(); if(navigator.vibrate) navigator.vibrate(25); } catch(e){} }
 
-        // --- MULTI-CURRENCY ENGINE ---
         function setCurr(sym, rate, el) {
-            currentRate = rate;
-            currentSym = sym;
+            currentRate = rate; currentSym = sym;
             document.querySelectorAll('.curr-chip').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             document.getElementById('fx-label').innerText = `NAIRA TOTAL (${sym} @ ${rate.toLocaleString()})`;
@@ -170,7 +192,7 @@
             if (navigator.vibrate) navigator.vibrate(10);
         }
 
-        function fIn(v) { fData += v; fUp(); }
+        function fIn(v) { fData += v; fUp(); if (navigator.vibrate) navigator.vibrate(5); }
         function fClr() { fData = ""; fUp(); }
         function fBack() { fData = fData.slice(0,-1); fUp(); }
         function fUp() {
@@ -180,7 +202,11 @@
         }
         function copyFX() {
             navigator.clipboard.writeText(document.getElementById('f-scr').innerText);
-            alert("Naira value copied!");
+            alert("Rate Copied!");
+        }
+        function shareFX() {
+            const text = `Vision Pro conversion: ${document.getElementById('f-sub').innerText} is ${document.getElementById('f-scr').innerText}`;
+            window.open(`whatsapp://send?text=${encodeURIComponent(text)}`);
         }
     </script>
 </body>
