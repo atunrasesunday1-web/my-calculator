@@ -3,159 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vision Pro: Command</title>
+    <title>Vision Pro: Absolute</title>
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.08); --accent: #00d4ff; --bg: #050505; }
-        body { background: var(--bg); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; touch-action: manipulation; }
-        
+        :root { --accent: #00d4ff; --bg: #050505; --glass: rgba(255, 255, 255, 0.05); }
+        body { background: var(--bg); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
+
         .app-container { 
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-            backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 40px; padding: 25px; width: 90vw; max-width: 330px; 
-            position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 40px; padding: 25px; width: 330px; position: relative;
+            transition: all 0.5s ease;
         }
 
-        /* VOICE MIC STYLING */
-        .mic-btn {
-            position: absolute; top: 35px; right: 35px;
-            width: 45px; height: 45px; border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
-            transition: 0.3s; z-index: 10;
+        /* PREMIUM MIC STYLING */
+        .mic-box {
+            position: absolute; top: 30px; left: 30px;
+            width: 40px; height: 40px; border-radius: 14px;
+            background: var(--glass); display: flex; justify-content: center; align-items: center;
+            border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s;
         }
-        .mic-btn.listening {
-            background: rgba(255, 77, 77, 0.2);
-            border-color: #ff4d4d;
-            box-shadow: 0 0 20px #ff4d4d;
-            animation: pulse-red 1.5s infinite;
+        .mic-box.active { border-color: #ff4d4d; box-shadow: 0 0 15px rgba(255, 77, 77, 0.4); }
+        .mic-glow { width: 8px; height: 8px; background: white; border-radius: 50%; transition: 0.3s; }
+        .active .mic-glow { background: #ff4d4d; transform: scale(1.5); box-shadow: 0 0 10px #ff4d4d; }
+
+        /* DISPLAY AREA */
+        .display { text-align: right; padding: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: flex-end; }
+        #history { font-size: 11px; color: var(--accent); opacity: 0.5; letter-spacing: 2px; margin-bottom: 5px; min-height: 40px; }
+        #screen { font-size: 55px; font-weight: 200; transition: 0.2s; }
+
+        /* ORIENTATION PANEL (Scientific) */
+        .sci-panel { display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        @media (orientation: landscape) {
+            .app-container { width: 550px; }
+            .sci-panel { display: grid; }
         }
-        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        .display-area { text-align: right; margin-bottom: 15px; padding: 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: flex-end; }
-        #history { font-size: 11px; color: var(--accent); opacity: 0.6; letter-spacing: 1.5px; text-transform: uppercase; min-height: 50px; padding-right: 40px; }
-        #screen { font-size: 48px; font-weight: 200; margin-top: 5px; text-shadow: 0 0 20px rgba(0,212,255,0.3); }
-
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        button { height: 55px; border-radius: 18px; border: none; background: rgba(255,255,255,0.03); color: white; font-size: 20px; cursor: pointer; }
-        button:active { transform: scale(0.92); background: var(--accent); color: black; }
-        .op { color: var(--accent); font-weight: bold; }
-        .action-btn { background: linear-gradient(45deg, #00d4ff, #0055ff); color: black; font-weight: bold; font-size: 12px; grid-column: span 4; margin-top: 10px; height: 50px; border-radius: 15px; }
-
-        #splash { position: fixed; inset: 0; background: black; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
+        /* GRID */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        button { 
+            height: 60px; border-radius: 18px; border: none; background: var(--glass); 
+            color: white; font-size: 20px; cursor: pointer; transition: 0.1s;
+        }
+        button:active { transform: scale(0.9); background: var(--accent); color: black; }
+        .op { color: var(--accent); background: rgba(0, 212, 255, 0.05); }
+        
+        /* SYSTEM START OVERLAY */
+        #unlock {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .start-btn { 
+            padding: 20px 40px; border: 1px solid var(--accent); color: var(--accent);
+            background: transparent; border-radius: 50px; font-size: 14px; letter-spacing: 2px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <div style="font-size: 30px; letter-spacing: 12px; font-weight: 100;">VISION</div>
-        <div style="font-size: 9px; margin-top: 20px; color: #444;">VOICE ENGINE LOADING...</div>
+    <div id="unlock">
+        <button class="start-btn" onclick="initSystem()">INITIALIZE VISION CORE</button>
+        <p style="font-size: 10px; color: #444; margin-top: 20px;">REQUIRES HAPTIC & SENSOR PERMISSION</p>
     </div>
 
     <div class="app-container">
-        <div class="mic-btn" id="mic-trigger" onclick="startListening()">
-            <span id="mic-icon" style="font-size: 20px;">🎤</span>
+        <div class="mic-box" id="mic" onclick="toggleVoice()">
+            <div class="mic-glow"></div>
         </div>
 
-        <div class="display-area">
-            <div id="history">TAP MIC TO SPEAK</div>
+        <div class="display" id="swipe-area">
+            <div id="history">OFFLINE</div>
             <div id="screen">0</div>
+        </div>
+
+        <div class="sci-panel" id="sci">
+            <button class="op" onclick="doMath('sqrt')">√</button>
+            <button class="op" onclick="doMath('pow')">x²</button>
+            <button class="op" onclick="doMath('log')">log</button>
         </div>
 
         <div class="grid">
             <button class="op" style="color: #ff4d4d;" onclick="clr()">AC</button>
+            <button class="op" onclick="setFX()">₦ FX</button>
             <button class="op" onclick="press('/')">÷</button>
-            <button class="op" onclick="press('*')">×</button>
             <button class="op" onclick="backspace()">⌫</button>
 
             <button onclick="press('7')">7</button>
             <button onclick="press('8')">8</button>
             <button onclick="press('9')">9</button>
-            <button class="op" onclick="press('-')">−</button>
+            <button class="op" onclick="press('*')">×</button>
 
             <button onclick="press('4')">4</button>
             <button onclick="press('5')">5</button>
             <button onclick="press('6')">6</button>
-            <button class="op" onclick="press('+')">+</button>
+            <button class="op" onclick="press('-')">−</button>
 
             <button onclick="press('1')">1</button>
             <button onclick="press('2')">2</button>
             <button onclick="press('3')">3</button>
-            <button class="op" style="background: var(--accent); color: black;" onclick="solve()">=</button>
+            <button class="op" onclick="press('+')">+</button>
 
-            <button onclick="press('0')">0</button>
+            <button style="grid-column: span 2" onclick="press('0')">0</button>
             <button onclick="press('.')">.</button>
-            <button onclick="speak('Ready')">🔊</button>
-            <button class="op" onclick="solve()">OK</button>
-            
-            <button class="action-btn" onclick="runIntelligence()">RUN VISION ANALYSIS</button>
+            <button class="op" style="background: var(--accent); color: black;" onclick="solve()">=</button>
         </div>
     </div>
 
     <script>
-        let currentInput = "";
-        
-        // --- VOICE RECOGNITION ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+        let input = "";
+        let rates = { USD: 1550 }; // Fallback rate
 
-        if (recognition) {
-            recognition.continuous = false;
-            recognition.lang = 'en-US';
+        // --- 1. INITIALIZE SYSTEM (Unlock Haptics/Audio) ---
+        async function initSystem() {
+            document.getElementById('unlock').style.display = 'none';
+            // Request Motion Permission for iPhone
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission();
+            }
+            fetchRates();
+            haptic(100);
+            speak("Vision Core Online");
+        }
 
-            recognition.onresult = (event) => {
-                let transcript = event.results[0][0].transcript.toLowerCase();
-                // Clean up voice words to math symbols
-                transcript = transcript.replace(/times/g, '*').replace(/x/g, '*').replace(/plus/g, '+')
-                                       .replace(/minus/g, '-').replace(/divided by/g, '/').replace(/over/g, '/');
-                
-                document.getElementById('history').innerText = "YOU SAID: " + transcript;
+        // --- 2. SWIPE TO CLEAR ---
+        let startX = 0;
+        document.getElementById('swipe-area').addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.getElementById('swipe-area').addEventListener('touchend', e => {
+            let diff = e.changedTouches[0].clientX - startX;
+            if (Math.abs(diff) > 60) { backspace(); haptic(30); }
+        });
+
+        // --- 3. CURRENCY CONVERTER ---
+        async function fetchRates() {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                rates.USD = data.rates.NGN;
+                document.getElementById('history').innerText = "LIVE RATES SYNCED";
+            } catch { document.getElementById('history').innerText = "USING LOCAL RATES"; }
+        }
+
+        function setFX() {
+            if(!input) return;
+            let res = parseFloat(input) * rates.USD;
+            document.getElementById('history').innerText = `$${input} TO NAIRA:`;
+            input = Math.floor(res).toLocaleString();
+            update();
+            haptic(60);
+        }
+
+        // --- 4. VOICE COMMAND ---
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = Recognition ? new Recognition() : null;
+
+        function toggleVoice() {
+            if (!rec) return alert("Browser not supported");
+            document.getElementById('mic').classList.add('active');
+            rec.start();
+        }
+
+        if (rec) {
+            rec.onresult = (e) => {
+                let text = e.results[0][0].transcript.toLowerCase();
+                text = text.replace(/plus/g, '+').replace(/minus/g, '-').replace(/times/g, '*').replace(/divided/g, '/');
                 try {
-                    let result = eval(transcript.replace(/[^-()\d/*+.]/g, ''));
-                    currentInput = result.toString();
-                    updateScreen();
-                    speak("The answer is " + currentInput);
-                } catch {
-                    document.getElementById('history').innerText = "COULDN'T UNDERSTAND MATH";
-                }
-                stopListeningUI();
+                    input = eval(text.replace(/[^-()\d/*+.]/g, '')).toString();
+                    update();
+                    speak("Result is " + input);
+                } catch { speak("Error"); }
             };
-
-            recognition.onerror = () => stopListeningUI();
-            recognition.onend = () => stopListeningUI();
+            rec.onend = () => document.getElementById('mic').classList.remove('active');
         }
 
-        function startListening() {
-            if (!recognition) return alert("Voice not supported on this browser.");
-            haptic(50);
-            document.getElementById('mic-trigger').classList.add('listening');
-            document.getElementById('history').innerText = "LISTENING...";
-            recognition.start();
-        }
-
-        function stopListeningUI() {
-            document.getElementById('mic-trigger').classList.remove('listening');
-        }
-
-        function speak(text) {
-            const msg = new SpeechSynthesisUtterance(text);
-            window.speechSynthesis.speak(msg);
-        }
-
-        // --- CORE FUNCTIONS ---
-        window.onload = () => { setTimeout(() => document.getElementById('splash').remove(), 1000); };
-        function press(v) { currentInput += v; updateScreen(); haptic(10); }
-        function clr() { currentInput = ""; updateScreen(); document.getElementById('history').innerText = "VISION PRO READY"; haptic(40); }
-        function backspace() { currentInput = currentInput.slice(0, -1); updateScreen(); }
-        function updateScreen() { document.getElementById('screen').innerText = currentInput || "0"; }
-        function solve() { try { currentInput = eval(currentInput).toString(); updateScreen(); haptic(50); } catch { } }
-        function haptic(ms) { if (window.navigator.vibrate) window.navigator.vibrate(ms); }
+        // --- CORE TOOLS ---
+        function press(v) { input += v; update(); haptic(15); }
+        function clr() { input = ""; update(); haptic(50); }
+        function backspace() { input = input.slice(0, -1); update(); }
+        function update() { document.getElementById('screen').innerText = input || "0"; }
+        function solve() { try { input = eval(input).toString(); update(); haptic(70); } catch { } }
+        function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+        function speak(t) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
         
-        function runIntelligence() {
-            let val = parseFloat(currentInput);
-            if (isNaN(val)) return;
-            document.getElementById('history').innerText = "ANALYSIS COMPLETE";
-            speak("Analysis of " + val + " complete.");
+        function doMath(type) {
+            let v = parseFloat(input);
+            if (type === 'sqrt') input = Math.sqrt(v);
+            if (type === 'pow') input = v * v;
+            update();
         }
     </script>
 </body>
