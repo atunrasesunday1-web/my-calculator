@@ -4,19 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Vision Pro Master</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-
     <style>
         :root { --accent: #00d4ff; --bg: #0b0b0b; --panel: rgba(22, 22, 22, 0.7); --btn: #1f1f1f; --red: #ff3b30; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; outline: none; }
         body { background: var(--bg); color: white; margin: 0; overflow: hidden; height: 100vh; width: 100vw; }
 
-        /* SPLASH SCREEN */
+        /* SPLASH */
         #splash-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 9999; display: flex;
-            flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center;
             transition: opacity 0.8s ease, visibility 0.8s;
         }
         .v-logo-svg { width: 280px; height: 280px; }
@@ -33,42 +30,38 @@
         .fade-out { opacity: 0; visibility: hidden; }
 
         /* UI STRUCTURE */
-        .app-container { display: flex; flex-direction: column; height: 100vh; opacity: 0; transform: translateY(20px); transition: 1s cubic-bezier(0.2, 1, 0.3, 1); }
-        .app-ready { opacity: 1; transform: translateY(0); }
+        .app-container { display: flex; flex-direction: column; height: 100vh; opacity: 0; transition: 1s; }
+        .app-ready { opacity: 1; }
 
-        .header-container { padding: 50px 20px 10px; background: rgba(11, 11, 11, 0.8); backdrop-filter: blur(20px); z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .header-container { padding: 50px 20px 10px; background: rgba(11, 11, 11, 0.8); backdrop-filter: blur(20px); z-index: 10; }
         .navigation { background: var(--panel); padding: 4px; border-radius: 18px; display: flex; position: relative; border: 1px solid rgba(255,255,255,0.05); }
-        .nav-btn { flex: 1; padding: 14px; border: none; background: none; color: #555; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; z-index: 2; cursor: pointer; }
+        .nav-btn { flex: 1; padding: 14px; border: none; background: none; color: #555; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; z-index: 2; }
         .nav-btn.active { color: #fff; }
         .nav-pill { position: absolute; width: calc(50% - 4px); height: calc(100% - 8px); background: #282828; border-radius: 14px; top: 4px; left: 4px; transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1); z-index: 1; }
         
         .main-stage { display: flex; width: 200%; flex: 1; transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1); }
         .room { width: 50%; height: 100%; display: flex; flex-direction: column; padding: 25px; }
         
-        .display { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; padding-bottom: 20px; min-height: 120px; }
-        .screen { font-size: 64px; font-weight: 300; color: #fff; letter-spacing: -2px; overflow-x: auto; white-space: nowrap; }
-        .sub-screen { font-size: 18px; color: var(--accent); opacity: 0.7; margin-bottom: 5px; min-height: 22px; }
+        .display { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; padding-bottom: 20px; }
+        .screen { font-size: 58px; font-weight: 300; color: #fff; letter-spacing: -2px; overflow: hidden; }
+        .sub-screen { font-size: 18px; color: var(--accent); opacity: 0.7; margin-bottom: 5px; }
 
-        /* GRID SYSTEM */
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; flex: 2.5; }
-        button { border-radius: 20px; border: none; background: var(--btn); color: #fff; font-size: 22px; transition: 0.2s; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        button:active { transform: scale(0.92); background: #333; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 2.5; }
+        button { border-radius: 18px; border: none; background: var(--btn); color: #fff; font-size: 20px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        button:active { transform: scale(0.95); background: #333; }
         .op { color: var(--accent); background: rgba(0, 212, 255, 0.05); }
         .action { background: var(--accent); color: #000; font-weight: 700; }
         
         /* MIC ICON & PULSE */
         .mic-icon { width: 26px; height: 26px; fill: var(--accent); transition: 0.3s; }
-        .listening .mic-icon { fill: white; transform: scale(1.1); }
         .mic-btn.listening { background: var(--red) !important; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse { 
-            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6); } 
-            70% { box-shadow: 0 0 0 20px rgba(255, 59, 48, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } 
-        }
+        .mic-btn.listening .mic-icon { fill: white; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6); } 70% { box-shadow: 0 0 0 20px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
 
-        /* CONVERTER GRID FIX */
-        .conv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; flex: 2.5; }
+        /* CURRENCY SELECTOR */
+        .currency-switch { display: flex; gap: 10px; margin-bottom: 15px; }
+        .c-tab { flex: 1; padding: 10px; background: var(--btn); border-radius: 10px; font-size: 10px; text-align: center; color: #666; }
+        .c-tab.active { background: var(--accent); color: #000; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -103,10 +96,7 @@
                     <button onclick="cIn('4')">4</button><button onclick="cIn('5')">5</button><button onclick="cIn('6')">6</button><button class="op" onclick="cIn('+')">+</button>
                     <button onclick="cIn('1')">1</button><button onclick="cIn('2')">2</button><button onclick="cIn('3')">3</button><button class="action" onclick="cSolve()">=</button>
                     <button class="op mic-btn" id="mic-trigger" onclick="startVoice()">
-                        <svg class="mic-icon" viewBox="0 0 24 24">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
+                        <svg class="mic-icon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                     </button>
                     <button onclick="cIn('0')">0</button><button onclick="cIn('.')">.</button>
                     <button class="op" onclick="goto(1, document.querySelectorAll('.nav-btn')[1])">₦</button>
@@ -115,12 +105,17 @@
 
             <div class="room">
                 <div class="display">
-                    <div class="sub-screen">USD TO NGN (1,680)</div>
+                    <div class="sub-screen" id="curr-label">USD TO NGN</div>
                     <div class="screen" id="f-scr">₦0</div>
                 </div>
-                <div class="conv-grid">
+                <div class="currency-switch">
+                    <div class="c-tab active" id="tab-USD" onclick="setCurr('USD', 1680)">USD</div>
+                    <div class="c-tab" id="tab-GBP" onclick="setCurr('GBP', 2150)">GBP</div>
+                    <div class="c-tab" id="tab-EUR" onclick="setCurr('EUR', 1820)">EUR</div>
+                </div>
+                <div class="grid">
                     <button class="op" onclick="fClr()">AC</button>
-                    <button style="grid-column: span 2; font-size: 14px; color: var(--accent);">INPUT USD</button>
+                    <button style="grid-column: span 2; font-size: 11px; color: var(--accent);">TYPE AMOUNT</button>
                     <button class="op" onclick="fBack()">⌫</button>
                     <button onclick="fIn('7')">7</button><button onclick="fIn('8')">8</button><button onclick="fIn('9')">9</button><button class="op" onclick="fIn('4')">4</button>
                     <button onclick="fIn('5')">5</button><button onclick="fIn('6')">6</button><button onclick="fIn('1')">1</button><button class="op" onclick="fIn('2')">2</button>
@@ -135,7 +130,7 @@
         window.onload = () => { setTimeout(() => {
             document.getElementById('splash-overlay').classList.add('fade-out');
             document.getElementById('app-ui').classList.add('app-ready');
-        }, 3500); };
+        }, 3000); };
 
         function goto(idx, btn) {
             document.getElementById('stage').style.transform = `translateX(-${idx * 50}%)`;
@@ -152,42 +147,41 @@
         function cSolve() { try { 
             let res = eval(cData.replace('×','*').replace('÷','/'));
             document.getElementById('c-sub').innerText = cData + " =";
-            cData = Number.isInteger(res) ? res.toString() : res.toFixed(4).replace(/\.?0+$/, "");
-            cUp(); 
+            cData = res.toString(); cUp(); 
         } catch(e){ cData = "Error"; cUp(); } }
 
-        let fData = ""; const RATE = 1680;
+        let fData = ""; let currentRate = 1680;
+        function setCurr(name, rate) {
+            currentRate = rate;
+            document.getElementById('curr-label').innerText = name + " TO NGN";
+            document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            fUp();
+        }
         function fIn(v) { fData += v; fUp(); }
         function fClr() { fData = ""; fUp(); }
         function fBack() { fData = fData.slice(0,-1); fUp(); }
         function fUp() { 
             let val = parseFloat(fData) || 0;
-            document.getElementById('f-scr').innerText = "₦" + (val * RATE).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}); 
+            document.getElementById('f-scr').innerText = "₦" + (val * currentRate).toLocaleString(); 
         }
 
         function startVoice() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) { alert("Voice not supported."); return; }
+            if (!SpeechRecognition) { alert("Mic not supported on this browser."); return; }
             const recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
             const micBtn = document.getElementById('mic-trigger');
             
             recognition.onstart = () => micBtn.classList.add('listening');
             recognition.onend = () => micBtn.classList.remove('listening');
 
             recognition.onresult = (event) => {
-                let transcript = event.results[0][0].transcript.toLowerCase();
-                const map = {
-                    'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5',
-                    'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'zero': '0',
-                    'plus': '+', 'minus': '-', 'times': '*', 'multiply': '*', 'divide': '/', 'point': '.'
-                };
-                let words = transcript.split(/[\s-]+/);
+                let text = event.results[0][0].transcript.toLowerCase();
+                const map = { 'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9,'zero':0,'plus':'+','minus':'-','times':'*','divide':'/' };
                 let result = "";
-                words.forEach(w => {
-                    if (map[w]) result += map[w];
-                    else if (!isNaN(w)) result += w;
+                text.split(' ').forEach(w => {
+                    if(map[w] !== undefined) result += map[w];
+                    else if(!isNaN(w)) result += w;
                 });
                 cData += result;
                 cUp();
