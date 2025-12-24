@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Vision Pro</title>
     
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    <meta name="apple-mobile-web-app-title" content="Vision Pro">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0b0b0b">
@@ -163,7 +167,6 @@
         let cData = ""; let fData = ""; 
         let currentRate = 1680; let currentSym = "USD";
 
-        // Set the date
         const d = new Date();
         const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
         document.getElementById('date-now').innerText = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
