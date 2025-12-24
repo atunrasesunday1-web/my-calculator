@@ -3,168 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vision Pro</title>
-    <meta property="og:title" content="Vision Pro Calculator">
-    <meta property="og:description" content="The Future of Math.">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
-    
+    <title>Vision Pro: Command</title>
     <style>
-        :root {
-            --glass: rgba(255, 255, 255, 0.1);
-            --accent: #00d4ff;
-        }
-
-        body { 
-            background: radial-gradient(circle at center, #1a1a2e, #0f0c29);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
-
-        /* SPLASH SCREEN STYLES */
-        #splash {
-            position: fixed;
-            inset: 0;
-            background: #0f0c29;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            transition: opacity 0.8s ease-out;
-        }
-
-        .logo-text {
-            color: white;
-            font-size: 40px;
-            font-weight: 200;
-            letter-spacing: 12px;
-            text-shadow: 0 0 20px var(--accent);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.5; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0.5; transform: scale(0.95); }
-        }
-
-        /* CALCULATOR MAIN STYLES */
-        .calculator {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            padding: 25px;
-            border-radius: 40px;
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 320px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 1s ease-out;
-        }
-
-        .show-calc {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #display-container {
-            background: rgba(0,0,0,0.3);
-            padding: 20px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            text-align: right;
-        }
-
-        #history { color: var(--accent); font-size: 14px; height: 20px; opacity: 0.6; }
-        #screen { color: white; font-size: 48px; font-weight: 200; overflow: hidden; }
-
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        :root { --glass: rgba(255, 255, 255, 0.08); --accent: #00d4ff; --bg: #050505; }
+        body { background: var(--bg); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; touch-action: manipulation; }
         
-        button {
-            height: 65px;
-            border-radius: 20px;
-            border: none;
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: 0.2s;
+        .app-container { 
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 40px; padding: 25px; width: 90vw; max-width: 330px; 
+            position: relative;
         }
 
-        button:active { background: var(--accent); transform: scale(0.9); }
+        /* VOICE MIC STYLING */
+        .mic-btn {
+            position: absolute; top: 35px; right: 35px;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s; z-index: 10;
+        }
+        .mic-btn.listening {
+            background: rgba(255, 77, 77, 0.2);
+            border-color: #ff4d4d;
+            box-shadow: 0 0 20px #ff4d4d;
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        .display-area { text-align: right; margin-bottom: 15px; padding: 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: flex-end; }
+        #history { font-size: 11px; color: var(--accent); opacity: 0.6; letter-spacing: 1.5px; text-transform: uppercase; min-height: 50px; padding-right: 40px; }
+        #screen { font-size: 48px; font-weight: 200; margin-top: 5px; text-shadow: 0 0 20px rgba(0,212,255,0.3); }
+
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        button { height: 55px; border-radius: 18px; border: none; background: rgba(255,255,255,0.03); color: white; font-size: 20px; cursor: pointer; }
+        button:active { transform: scale(0.92); background: var(--accent); color: black; }
         .op { color: var(--accent); font-weight: bold; }
-        .clear { grid-column: span 2; color: #ff4d4d; }
+        .action-btn { background: linear-gradient(45deg, #00d4ff, #0055ff); color: black; font-weight: bold; font-size: 12px; grid-column: span 4; margin-top: 10px; height: 50px; border-radius: 15px; }
+
+        #splash { position: fixed; inset: 0; background: black; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div class="logo-text">VISION</div>
-        <div style="color: var(--accent); margin-top: 20px; font-size: 10px; letter-spacing: 2px;">POWERED BY AI</div>
+        <div style="font-size: 30px; letter-spacing: 12px; font-weight: 100;">VISION</div>
+        <div style="font-size: 9px; margin-top: 20px; color: #444;">VOICE ENGINE LOADING...</div>
     </div>
 
-    <div class="calculator" id="main-app">
-        <div id="display-container">
-            <div id="history"></div>
+    <div class="app-container">
+        <div class="mic-btn" id="mic-trigger" onclick="startListening()">
+            <span id="mic-icon" style="font-size: 20px;">🎤</span>
+        </div>
+
+        <div class="display-area">
+            <div id="history">TAP MIC TO SPEAK</div>
             <div id="screen">0</div>
         </div>
+
         <div class="grid">
-            <button class="clear" onclick="clr()">AC</button>
+            <button class="op" style="color: #ff4d4d;" onclick="clr()">AC</button>
             <button class="op" onclick="press('/')">÷</button>
             <button class="op" onclick="press('*')">×</button>
+            <button class="op" onclick="backspace()">⌫</button>
+
             <button onclick="press('7')">7</button>
             <button onclick="press('8')">8</button>
             <button onclick="press('9')">9</button>
             <button class="op" onclick="press('-')">−</button>
+
             <button onclick="press('4')">4</button>
             <button onclick="press('5')">5</button>
             <button onclick="press('6')">6</button>
             <button class="op" onclick="press('+')">+</button>
+
             <button onclick="press('1')">1</button>
             <button onclick="press('2')">2</button>
             <button onclick="press('3')">3</button>
             <button class="op" style="background: var(--accent); color: black;" onclick="solve()">=</button>
-            <button style="grid-column: span 2;" onclick="press('0')">0</button>
+
+            <button onclick="press('0')">0</button>
             <button onclick="press('.')">.</button>
+            <button onclick="speak('Ready')">🔊</button>
+            <button class="op" onclick="solve()">OK</button>
+            
+            <button class="action-btn" onclick="runIntelligence()">RUN VISION ANALYSIS</button>
         </div>
     </div>
 
     <script>
-        // Splash Screen Logic
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                    document.getElementById('main-app').classList.add('show-calc');
-                }, 800);
-            }, 1500);
-        });
+        let currentInput = "";
+        
+        // --- VOICE RECOGNITION ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
-        let txt = "";
-        function press(v) {
-            if (window.navigator.vibrate) window.navigator.vibrate(10);
-            txt += v;
-            document.getElementById('screen').innerText = txt;
+        if (recognition) {
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                let transcript = event.results[0][0].transcript.toLowerCase();
+                // Clean up voice words to math symbols
+                transcript = transcript.replace(/times/g, '*').replace(/x/g, '*').replace(/plus/g, '+')
+                                       .replace(/minus/g, '-').replace(/divided by/g, '/').replace(/over/g, '/');
+                
+                document.getElementById('history').innerText = "YOU SAID: " + transcript;
+                try {
+                    let result = eval(transcript.replace(/[^-()\d/*+.]/g, ''));
+                    currentInput = result.toString();
+                    updateScreen();
+                    speak("The answer is " + currentInput);
+                } catch {
+                    document.getElementById('history').innerText = "COULDN'T UNDERSTAND MATH";
+                }
+                stopListeningUI();
+            };
+
+            recognition.onerror = () => stopListeningUI();
+            recognition.onend = () => stopListeningUI();
         }
-        function clr() {
-            txt = "";
-            document.getElementById('screen').innerText = "0";
-            document.getElementById('history').innerText = "";
+
+        function startListening() {
+            if (!recognition) return alert("Voice not supported on this browser.");
+            haptic(50);
+            document.getElementById('mic-trigger').classList.add('listening');
+            document.getElementById('history').innerText = "LISTENING...";
+            recognition.start();
         }
-        function solve() {
-            try {
-                document.getElementById('history').innerText = txt + " =";
-                txt = eval(txt).toString();
-                document.getElementById('screen').innerText = txt;
-            } catch {
-                document.getElementById('screen').innerText = "Error";
-                txt = "";
-            }
+
+        function stopListeningUI() {
+            document.getElementById('mic-trigger').classList.remove('listening');
+        }
+
+        function speak(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(msg);
+        }
+
+        // --- CORE FUNCTIONS ---
+        window.onload = () => { setTimeout(() => document.getElementById('splash').remove(), 1000); };
+        function press(v) { currentInput += v; updateScreen(); haptic(10); }
+        function clr() { currentInput = ""; updateScreen(); document.getElementById('history').innerText = "VISION PRO READY"; haptic(40); }
+        function backspace() { currentInput = currentInput.slice(0, -1); updateScreen(); }
+        function updateScreen() { document.getElementById('screen').innerText = currentInput || "0"; }
+        function solve() { try { currentInput = eval(currentInput).toString(); updateScreen(); haptic(50); } catch { } }
+        function haptic(ms) { if (window.navigator.vibrate) window.navigator.vibrate(ms); }
+        
+        function runIntelligence() {
+            let val = parseFloat(currentInput);
+            if (isNaN(val)) return;
+            document.getElementById('history').innerText = "ANALYSIS COMPLETE";
+            speak("Analysis of " + val + " complete.");
         }
     </script>
 </body>
